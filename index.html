@@ -927,12 +927,11 @@
         use cases: 
         <ul>
           <li>Higher assurance.  Because hosted applications may be modified 
-          without the end user or distributor being aware
-          
-          If a marketplace wants to guarantee that an application is safe,
-          it allows it to review the application codes and makes sure that all
-          permissions granted can't be used outside of the reviewed code. In
-          addition, it forces, by design, that any update will go trough the
+          without the end user or distributor being aware of the modficiation,
+          this makes assurance through code review or testing impossible.  
+          Packaged applications allow a marketplace or third party to review
+          the code before it is distributed to end users.  In
+          addition, it forces, by design, that any update will go through the
           same review process.</li>
           <li>Some developers might want to develop for the Web Platform without
           investing in a server infrastructure. Any client-side only
@@ -1379,7 +1378,7 @@
           style-src 'self'</code></p>
 	  <p>Additional CSP directives MAY be specified in the application 
 	  manifest but these SHALL NOT be more permissive than the above.  
-	  They MAY include 'content-src' rules, for example, but MAY NOT 
+	  They MAY include 'content-src' rules, for example, but SHALL NOT 
 	  include 'script-src' rules.</p>          
         </section>
 
