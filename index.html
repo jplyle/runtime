@@ -911,9 +911,10 @@
     <section>
       <h2>Packaged applications</h2>
 
-      <p>A <dfn>packaged application</dfn> is an application that is
-      self-contained in a container. All resources that are commonly used by the
-      application SHOULD be available in the container.</p>
+      <p>A <dfn>packaged application</dfn> is an application that is designed
+      to be downloaded as an archive rather than served by a web server.   All 
+      resources that are commonly used by the application SHOULD be stored in 
+      the application container.</p>
 
       <p>A <dfn>hosted application</dfn> is an application that is not a
       <a>packaged application</a></p>
@@ -922,10 +923,13 @@
 
         <h2>Use cases</h2>
 
-        <p>A <a>packaged application</a> would be useful in a few situations,
-        amongst them:
+        <p><a>Packaged applications</a> are intended to support the following 
+        use cases: 
         <ul>
-          <li>If a marketplace wants to guarantee that an application is safe,
+          <li>Higher assurance.  Because hosted applications may be modified 
+          without the end user or distributor being aware
+          
+          If a marketplace wants to guarantee that an application is safe,
           it allows it to review the application codes and makes sure that all
           permissions granted can't be used outside of the reviewed code. In
           addition, it forces, by design, that any update will go trough the
@@ -1259,131 +1263,188 @@
       </section>
 
       <section>
-        <h2>Trusted applications</h2>
-
+        <h2>Privileged applications</h2>
+        <p>Some applications require access to APIs which, if abused, may cause 
+        significant damage to the end user's services, data or devices.  
+        Because the impact of using a malicious application with these 
+        privileges is higher, this specification defines additional rules 
+        and constraints on such applications in order to maintain the user's 
+        security requirements.</p>
+        
         <section class="informative">
           <h2>Use cases</h2>
-
-          <p>Any application can be compromised. It just depends on how much
-          effort the attacker wants to provide and how much efforts the author
-          wants to dedicate making its application more secure. With an
-          interesting enough outcome, attackers could easily double their
-          efforts to beat the security in place. For example, an API allowing to
-          send SMS, if it can be manipulated by the evil persons, could be used
-          to send premium SMS and steal money from the users.</p>
-
-          <p>With a simple permission system, users could be tricked to install
-          the application and accept to grant the application the relevant
-          permissions. These kind of attacks are proven to be efficient.</p>
-        </section>
-
-        <section>
-          <h2>Chain of trust</h2>
-
-          <p>An application is said to be a <dfn>trusted application</dfn> if
-          the origin installing the application is trusted by the UA and the
-          origin installing the application consider the application as
-          trusty.</p>
-
-          <p>A UA SHOULD have the public key of all installation origin it is
-          considering trusted.</p>
-        </section>
-
-        <section>
-          <h2>Marking an application trusted</h2>
-
-          <p>A <a>hosted application</a> MUST be recognized as marked trusted by
-          the installation origin if the <a>application manifest</a> is signed
-          by the installation origin's private key.</p>
-
-          <p>A <a>packaged application</a> MUST be recognized as marked trusted
-          by the installation origin if the package is signed by the
-          installation origin's private key.</a>
-
-          <p>In both cases, the application SHOULD be considered as trusted by
-          the UA if the UA considers the installation origin as trusted,
-          following the chain of trust mentioned above.</p>
+	  <p>The following use cases give examples of the legitimate reason 
+	  for applications being given access to additional APIs.</p>
+	  <ul>
+	    <li>An address book application, capable of editing the user's 
+	    contacts en masse.  Such an application needs unrestricted access 
+	    to the user's contacts list.  Mitigations such as runtime 
+	    prompting or special UI chrome would not solve this use case.</li>
+	    <li>An SMS application, capable of sending and receiving SMS 
+	    messages.</li>
+	    <li>Accessing DLNA / UPnP devices.  Such an application would 
+	    require access to the local device's network interface at a lower 
+	    level than normal.</li>
+	    <li>A dialer application.</li>
+	    <li>An application making use of device-specific APIs, such as a 
+	    Vehicle API.  Such APIs may be restricted to applications that 
+	    have passed certain quality checks.</li>
+          </ul>
         </section>
 
         <section class="informative">
-          <h2>Security considerations</h2>
+          <h2>Misuse cases</h2>
+	  <p>The following misuse cases describe examples of the threat 
+	  from a malicious privileged application.</p>
+	  <ul>
+	    <li>Misuse of the network stack.  The Raw Sockets API might be 
+	    used to attack the user's local network. This presents a threat 
+	    to all other devices on the network, including routers and 
+	    servers.</li>
+	    <li>Misuse of the contacts API to obtain large numbers of email 
+	    address for Phishing attacks.</li>
+	    <li>Misuse of the Messaging API in order to send premium rate 
+	    SMS.  This has been used by attacked - albeit largely 
+	    unsuccessfully - to earn money from malware.</li>
+	    <li>Misuse of the Messaging API to defeat two-factor 
+	    authentication checks.  E.g., the ZitMo malware.</li>
+	    <li>Misuse of the Telephony API in order to call premium rate 
+	    numbers.</li>
+          </ul>
+          <p>There is also the threat that a non-malicious but poorly-
+          implemented privileged application might be compromised by a 
+          runtime attack through code injection or other methods.</p>
+        </section>
 
-          <p>UA should keep in mind that a signed package is way more secure
-          than a signed manifest. A correctly signed package can only be
-          compromised if the private key has been compromised or the
-          cryptographic algorithm. A UA should not trust an installation origin
-          if it does not trust its ability to keep safe its private key.</p>
+        <section class="informative">
+          <h2>Security principles and requirements</h2>
+	  <p>Security controls for privileged applications are specified 
+	  with the following considerations in mind.</p>
+	  <ul>
+	    <li>User consent and permissioning is not considered adequate 
+	    mitigation.  The risk of 'clickthrough' is sufficiently high 
+	    that it is recommended that user agents do not rely on this 
+	    method alone to prevent malware.</li>
+	    <li>Authenticity and integrity of application code is important.  
+	    Installing an inauthentic application, or one that has been 
+	    altered to add malicious functionality, is also a risk. This 
+	    suggests that apps should be signed or delivered over 
+	    authenticated transport mechanisms, or pre-installed on the 
+	    platform.</li>
+	    <li>Maintaining the execution scope of the application is also 
+	    important: it must not be able to load unauthenticated content.  
+	    Furthermore, compromise of an application through code injection 
+	    presents a risk, and should be avoided through additional 
+	    security features.</li>
+	    <li>These apps are likely to need review (suggesting they will be 
+	    packaged and distributed by a third party).</li>
+	    <li>These apps should be updatable, as the impact of them 
+	    containing a bug or vulnerability is significant.  However, 
+	    updates should be restricted to authorised parties.</li>
+	    <li>If privileged malware is still installed by end users, there 
+	    should be a revocation mechanism (a 'kill switch') that can 
+	    remotely disable and uninstall the application.</li>
+	    <li>Users may be limited in the privileged applications they are 
+	    able to install and uninstall.</li>
+          </ul>
+        </section>       
 
-          <p>On the other hands, a signed manifest only proves that the
-          application is genuinly trusted (if the private key was not
-          compromised nor the cryptographic algorithm). Anything else can be
-          compromised given that it lives in the Internet. There is no need to
-          list all possible attacks.</p>
-
-          <p>An important difference between a <a>packaged application</a> and a
-          <a>hosted application</a> is the ability to review the code. Any
-          permission granted to a <a>packaged application</a> will be granted to
-          the code inside the package only. That means trusting such application
-          is way easier after a code review, for example.</p>
-
-          <p>However, code review for <a>packaged application</a>s could be
-          avoided if the installation origin trusts enough an application
-          developer. Such developer could get all its <a>packaged
-          application</a>s trusted without too much risk for the users.<br>
-          The same thing colud be done for <a>hosted application</a> except that
-          it would be recommended to make sure that the developer has strong
-          server security or would not risk any security flaw on their servers.
-          </p>
+        <section>
+          <h2>Permissioning</h2>
+          <p>A privileged application is an application that requests one 
+          or more of the following permissions:</p>
+          <ul>
+            <li>TBC.</li>
+          </ul>
+          <p>The User Agent MAY differentiate between the installation of a 
+          privileged and unprivileged application through the graphical user 
+          interface presented to end users at install time.</p>
         </section>
 
         <section>
-          <h2>CSP Policy</h2>
-
-          <section class="note">
-            The following sub-section assumes that a <a>trusted application</a>
-            can only be a <a>packaged application</a>. This needs to be updated.
-          </section>
-
-          <p>The following CSP policy MUST apply to all <a>trusted
-          application</a>s [[!CSP]]:<br></p>
-
+          <h2>Delivery</h2>
+          <p>A privileged application SHALL be delivered either through an 
+          authenticated protocol - HTTPS from a recognised endpoint with a 
+          valid certififcate - or as a packaged application with a signature 
+          by an entity trusted by the user agent.</p>
+          <p>It is recommended that privileged applications are packaged, 
+          as this allows for offline review by independent parties.</p>
+        </section>
+        
+        <section>
+          <h2>Protection from malicious code injection</h2>
+          <p>The following Content Security Policy MUST be applied to all 
+          privileged applications [[!CSP]]:<br></p>
           <p><code>default-src *; script-src 'self'; object-src 'none';
           style-src 'self'</code></p>
-
-          <p>This puts the following restrictions on web pages part of a
-          <a>trusted application</a>:
-          <ul>
-            <li>Scripts can only be loaded from the package;</li>
-            <li>Scripts can not use data:-URIs;</li>
-            <li>Inline scripts can not be used;</li>
-            <li>eval() can not be used. Neither can eval-like functions like
-            setTimeout or "new Function". setTimeout can still be used as long
-            as the first argument is a Function object rather than a string;<il>
-            <li>onXXX attributes can't be used in the markup of pages. However,
-            using the associated <a>EventHandler</a> is doable. For example:
-            myElement.onXXX = someFunction;<li>
-            <li>&lt;object&gt;, &lt;embed&gt; and &lt;applet&gt; are fully
-            disabled. In other words, plugins won't work at all. Including
-            flash.</li>
-            <li>CSS can only be loaded from the package. Inline CSS is
-            however allowed.</li>
-          </ul></p>
-
-          <p>This does not restrict any of the following:
-          <ul>
-            <li>&lt;iframe&gt;s can still point to any URL;</li>
-            <li>Images can still be loaded from anywhere. Including when loaded
-            using an &lt;img&gt; element, when using CSS background images or
-            when using other types of CSS images;</li>
-            <li>Media (audio and video) can still be loaded from anywhere;</li>
-            <li>Network connections can still be opened anywhere using
-            data-centric APIs like XMLHttpRequest or WebSocket.</li>
-          </ul></p>
-
-          <p>There is no way for <a>trusted application</a>s to relax this
-          policy.</p>
+	  <p>Additional CSP directives MAY be specified in the application 
+	  manifest but these SHALL NOT be more permissive than the above.  
+	  They MAY include 'content-src' rules, for example, but MAY NOT 
+	  include 'script-src' rules.</p>          
         </section>
-      </section>
+
+        <section>
+          <h2>Update</h2>
+          <p>The user agent SHOULD NOT install any privileged application 
+          that is not updateable, i.e., where no mechanism exists to check 
+          for updates to the application.</p>
+          <p>The user agent SHALL check for updates to the application at 
+          regular intervals.  It is recommended that the user agent checks 
+          for updates every week.</p>          
+        </section>
+
+        <section>
+          <h2>Revocation</h2>
+          <p>The user agent SHALL implement a revocation mechanism for 
+          privileged applications.  The following methods are suggested:</p>
+          <ul>
+            <li>The certificates accompanying a packaged, privileged 
+            application SHALL contain OCSP extensions.  The user agent SHALL 
+            check the status of certificates accompanying a privileged 
+            application regularly (recommended once a week).  Any packaged, 
+            privileged application that does not contain a valid certificate 
+            with OCSP extensions SHALL NOT be installable.</li>
+            <li>The user agent has a Certificate Revocation List (CRL) and 
+            regularly downloads updated copies of the list from all 
+            supported distributors.</li>
+          </ul>
+          <p>In the instance that a privileged application's certificate has 
+          been revoked, the user agent SHALL NOT allow further use of the 
+          application.</p>
+        </section>
+
+        <section>
+          <h2>Installation</h2>
+          <p>For the purpose of this specification, the user agent is 
+          assumed to have a security policy dictating the set of known 
+          authorities that are trusted to be the origin of a privileged 
+          application.</p>
+          <p>In addition to the rules applying to unprivileged packaged 
+          applications, the user agent SHALL NOT allow the installation of a 
+          privileged packaged application if:</p>
+          <ul>
+            <li>it is not signed,</li>
+	    <li>it has an invalid signature,</li>
+	    <li>if it has an invalid certificate chain for the key used 
+	    to create the signature, or</li>
+	    <li>if the certificate chain is not rooted by a certificate 
+	    authority that is trusted by the user agent's security policy.
+	    </li>
+          </ul>
+          <p>In addition to the rules applying to unprivileged hosted 
+          applications, the user agent SHALL NOT allow the installation of a 
+          privileged hosted application if:</p>
+          <ul>
+            <li>it is served over a protocol that makes no integrity or 
+            authenticity guarantees, such as HTTP.</li>
+            <li>it is served from a domain with certificates not rooted by a 
+            CA trusted by the user agent's security policy.</li>
+            <li>the user agent's security policy does not allow this domain 
+            to be the origin of privileged applications.</li>
+          </ul>
+          <p>The user agent MAY prevent uninstallation of a specific 
+          privileged application.</p>
+        </section>
     </section>
 
     <section>
