@@ -1261,189 +1261,189 @@
         </table>
       </section>
 
+    <section>
+      <h2>Privileged applications</h2>
+      <p>Some applications require access to APIs which, if abused, may cause
+      significant damage to the end user's services, data or devices.
+      Because the impact of using a malicious application with these
+      privileges is higher, this specification defines additional rules
+      and constraints on such applications in order to maintain the user's
+      security requirements.</p>
+
+      <section class="informative">
+        <h2>Use cases</h2>
+        <p>The following use cases give examples of the legitimate reason
+        for applications being given access to additional APIs.</p>
+        <ul>
+          <li>An address book application, capable of editing the user's
+          contacts en masse.  Such an application needs unrestricted access
+          to the user's contacts list.  Mitigations such as runtime
+          prompting or special UI chrome would not solve this use case.</li>
+          <li>An SMS application, capable of sending and receiving SMS
+          messages.</li>
+          <li>Accessing DLNA / UPnP devices.  Such an application would
+          require access to the local device's network interface at a lower
+          level than normal.</li>
+          <li>A dialer application.</li>
+          <li>An application making use of device-specific APIs, such as a
+          Vehicle API.  Such APIs may be restricted to applications that
+          have passed certain quality checks.</li>
+        </ul>
+      </section>
+
+      <section class="informative">
+        <h2>Misuse cases</h2>
+        <p>The following misuse cases describe examples of the threat
+        from a malicious privileged application.</p>
+        <ul>
+          <li>Misuse of the network stack.  The Raw Sockets API might be
+          used to attack the user's local network. This presents a threat
+          to all other devices on the network, including routers and
+          servers.</li>
+          <li>Misuse of the contacts API to obtain large numbers of email
+          address for Phishing attacks.</li>
+          <li>Misuse of the Messaging API in order to send premium rate
+          SMS.  This has been used by attacked - albeit largely
+          unsuccessfully - to earn money from malware.</li>
+          <li>Misuse of the Messaging API to defeat two-factor
+          authentication checks.  E.g., the ZitMo malware.</li>
+          <li>Misuse of the Telephony API in order to call premium rate
+          numbers.</li>
+        </ul>
+        <p>There is also the threat that a non-malicious but poorly-
+        implemented privileged application might be compromised by a
+        runtime attack through code injection or other methods.</p>
+      </section>
+
+      <section class="informative">
+        <h2>Security principles and requirements</h2>
+        <p>Security controls for privileged applications are specified
+        with the following considerations in mind.</p>
+        <ul>
+          <li>User consent and permissioning is not considered adequate
+          mitigation.  The risk of 'clickthrough' is sufficiently high
+          that it is recommended that user agents do not rely on this
+          method alone to prevent malware.</li>
+          <li>Authenticity and integrity of application code is important.
+          Installing an inauthentic application, or one that has been
+          altered to add malicious functionality, is also a risk. This
+          suggests that apps should be signed or delivered over
+          authenticated transport mechanisms, or pre-installed on the
+          platform.</li>
+          <li>Maintaining the execution scope of the application is also
+          important: it must not be able to load unauthenticated content.
+          Furthermore, compromise of an application through code injection
+          presents a risk, and should be avoided through additional
+          security features.</li>
+          <li>These apps are likely to need review (suggesting they will be
+          packaged and distributed by a third party).</li>
+          <li>These apps should be updatable, as the impact of them
+          containing a bug or vulnerability is significant.  However,
+          updates should be restricted to authorised parties.</li>
+          <li>If privileged malware is still installed by end users, there
+          should be a revocation mechanism (a 'kill switch') that can
+          remotely disable and uninstall the application.</li>
+          <li>Users may be limited in the privileged applications they are
+          able to install and uninstall.</li>
+        </ul>
+      </section>
+
       <section>
-        <h2>Privileged applications</h2>
-        <p>Some applications require access to APIs which, if abused, may cause 
-        significant damage to the end user's services, data or devices.  
-        Because the impact of using a malicious application with these 
-        privileges is higher, this specification defines additional rules 
-        and constraints on such applications in order to maintain the user's 
-        security requirements.</p>
-        
-        <section class="informative">
-          <h2>Use cases</h2>
-	  <p>The following use cases give examples of the legitimate reason 
-	  for applications being given access to additional APIs.</p>
-	  <ul>
-	    <li>An address book application, capable of editing the user's 
-	    contacts en masse.  Such an application needs unrestricted access 
-	    to the user's contacts list.  Mitigations such as runtime 
-	    prompting or special UI chrome would not solve this use case.</li>
-	    <li>An SMS application, capable of sending and receiving SMS 
-	    messages.</li>
-	    <li>Accessing DLNA / UPnP devices.  Such an application would 
-	    require access to the local device's network interface at a lower 
-	    level than normal.</li>
-	    <li>A dialer application.</li>
-	    <li>An application making use of device-specific APIs, such as a 
-	    Vehicle API.  Such APIs may be restricted to applications that 
-	    have passed certain quality checks.</li>
-          </ul>
-        </section>
+        <h2>Permissioning</h2>
+        <p>A privileged application is an application that requests one
+        or more of the following permissions:</p>
+        <ul>
+          <li>TBC.</li>
+        </ul>
+        <p>The User Agent MAY differentiate between the installation of a
+        privileged and unprivileged application through the graphical user
+        interface presented to end users at install time.</p>
+      </section>
 
-        <section class="informative">
-          <h2>Misuse cases</h2>
-	  <p>The following misuse cases describe examples of the threat 
-	  from a malicious privileged application.</p>
-	  <ul>
-	    <li>Misuse of the network stack.  The Raw Sockets API might be 
-	    used to attack the user's local network. This presents a threat 
-	    to all other devices on the network, including routers and 
-	    servers.</li>
-	    <li>Misuse of the contacts API to obtain large numbers of email 
-	    address for Phishing attacks.</li>
-	    <li>Misuse of the Messaging API in order to send premium rate 
-	    SMS.  This has been used by attacked - albeit largely 
-	    unsuccessfully - to earn money from malware.</li>
-	    <li>Misuse of the Messaging API to defeat two-factor 
-	    authentication checks.  E.g., the ZitMo malware.</li>
-	    <li>Misuse of the Telephony API in order to call premium rate 
-	    numbers.</li>
-          </ul>
-          <p>There is also the threat that a non-malicious but poorly-
-          implemented privileged application might be compromised by a 
-          runtime attack through code injection or other methods.</p>
-        </section>
+      <section>
+        <h2>Delivery</h2>
+        <p>A privileged application SHALL be delivered either through an
+        authenticated protocol - HTTPS from a recognised endpoint with a
+        valid certififcate - or as a packaged application with a signature
+        by an entity trusted by the user agent.</p>
+        <p>It is recommended that privileged applications are packaged,
+        as this allows for offline review by independent parties.</p>
+      </section>
 
-        <section class="informative">
-          <h2>Security principles and requirements</h2>
-	  <p>Security controls for privileged applications are specified 
-	  with the following considerations in mind.</p>
-	  <ul>
-	    <li>User consent and permissioning is not considered adequate 
-	    mitigation.  The risk of 'clickthrough' is sufficiently high 
-	    that it is recommended that user agents do not rely on this 
-	    method alone to prevent malware.</li>
-	    <li>Authenticity and integrity of application code is important.  
-	    Installing an inauthentic application, or one that has been 
-	    altered to add malicious functionality, is also a risk. This 
-	    suggests that apps should be signed or delivered over 
-	    authenticated transport mechanisms, or pre-installed on the 
-	    platform.</li>
-	    <li>Maintaining the execution scope of the application is also 
-	    important: it must not be able to load unauthenticated content.  
-	    Furthermore, compromise of an application through code injection 
-	    presents a risk, and should be avoided through additional 
-	    security features.</li>
-	    <li>These apps are likely to need review (suggesting they will be 
-	    packaged and distributed by a third party).</li>
-	    <li>These apps should be updatable, as the impact of them 
-	    containing a bug or vulnerability is significant.  However, 
-	    updates should be restricted to authorised parties.</li>
-	    <li>If privileged malware is still installed by end users, there 
-	    should be a revocation mechanism (a 'kill switch') that can 
-	    remotely disable and uninstall the application.</li>
-	    <li>Users may be limited in the privileged applications they are 
-	    able to install and uninstall.</li>
-          </ul>
-        </section>       
+      <section>
+        <h2>Protection from malicious code injection</h2>
+        <p>The following Content Security Policy MUST be applied to all
+        privileged applications [[!CSP]]:<br></p>
+        <p><code>default-src *; script-src 'self'; object-src 'none';
+        style-src 'self'</code></p>
+        <p>Additional CSP directives MAY be specified in the application
+        manifest but these SHALL NOT be more permissive than the above.
+        They MAY include 'content-src' rules, for example, but SHALL NOT
+        include 'script-src' rules.</p>
+      </section>
 
-        <section>
-          <h2>Permissioning</h2>
-          <p>A privileged application is an application that requests one 
-          or more of the following permissions:</p>
-          <ul>
-            <li>TBC.</li>
-          </ul>
-          <p>The User Agent MAY differentiate between the installation of a 
-          privileged and unprivileged application through the graphical user 
-          interface presented to end users at install time.</p>
-        </section>
+      <section>
+        <h2>Update</h2>
+        <p>The user agent SHOULD NOT install any privileged application
+        that is not updateable, i.e., where no mechanism exists to check
+        for updates to the application.</p>
+        <p>The user agent SHALL check for updates to the application at
+        regular intervals.  It is recommended that the user agent checks
+        for updates every week.</p>
+      </section>
 
-        <section>
-          <h2>Delivery</h2>
-          <p>A privileged application SHALL be delivered either through an 
-          authenticated protocol - HTTPS from a recognised endpoint with a 
-          valid certififcate - or as a packaged application with a signature 
-          by an entity trusted by the user agent.</p>
-          <p>It is recommended that privileged applications are packaged, 
-          as this allows for offline review by independent parties.</p>
-        </section>
-        
-        <section>
-          <h2>Protection from malicious code injection</h2>
-          <p>The following Content Security Policy MUST be applied to all 
-          privileged applications [[!CSP]]:<br></p>
-          <p><code>default-src *; script-src 'self'; object-src 'none';
-          style-src 'self'</code></p>
-	  <p>Additional CSP directives MAY be specified in the application 
-	  manifest but these SHALL NOT be more permissive than the above.  
-	  They MAY include 'content-src' rules, for example, but SHALL NOT 
-	  include 'script-src' rules.</p>          
-        </section>
+      <section>
+        <h2>Revocation</h2>
+        <p>The user agent SHALL implement a revocation mechanism for
+        privileged applications.  The following methods are suggested:</p>
+        <ul>
+          <li>The certificates accompanying a packaged, privileged
+          application SHALL contain OCSP extensions.  The user agent SHALL
+          check the status of certificates accompanying a privileged
+          application regularly (recommended once a week).  Any packaged,
+          privileged application that does not contain a valid certificate
+          with OCSP extensions SHALL NOT be installable.</li>
+          <li>The user agent has a Certificate Revocation List (CRL) and
+          regularly downloads updated copies of the list from all
+          supported distributors.</li>
+        </ul>
+        <p>In the instance that a privileged application's certificate has
+        been revoked, the user agent SHALL NOT allow further use of the
+        application.</p>
+      </section>
 
-        <section>
-          <h2>Update</h2>
-          <p>The user agent SHOULD NOT install any privileged application 
-          that is not updateable, i.e., where no mechanism exists to check 
-          for updates to the application.</p>
-          <p>The user agent SHALL check for updates to the application at 
-          regular intervals.  It is recommended that the user agent checks 
-          for updates every week.</p>          
-        </section>
-
-        <section>
-          <h2>Revocation</h2>
-          <p>The user agent SHALL implement a revocation mechanism for 
-          privileged applications.  The following methods are suggested:</p>
-          <ul>
-            <li>The certificates accompanying a packaged, privileged 
-            application SHALL contain OCSP extensions.  The user agent SHALL 
-            check the status of certificates accompanying a privileged 
-            application regularly (recommended once a week).  Any packaged, 
-            privileged application that does not contain a valid certificate 
-            with OCSP extensions SHALL NOT be installable.</li>
-            <li>The user agent has a Certificate Revocation List (CRL) and 
-            regularly downloads updated copies of the list from all 
-            supported distributors.</li>
-          </ul>
-          <p>In the instance that a privileged application's certificate has 
-          been revoked, the user agent SHALL NOT allow further use of the 
-          application.</p>
-        </section>
-
-        <section>
-          <h2>Installation</h2>
-          <p>For the purpose of this specification, the user agent is 
-          assumed to have a security policy dictating the set of known 
-          authorities that are trusted to be the origin of a privileged 
-          application.</p>
-          <p>In addition to the rules applying to unprivileged packaged 
-          applications, the user agent SHALL NOT allow the installation of a 
-          privileged packaged application if:</p>
-          <ul>
-            <li>it is not signed,</li>
-	    <li>it has an invalid signature,</li>
-	    <li>if it has an invalid certificate chain for the key used 
-	    to create the signature, or</li>
-	    <li>if the certificate chain is not rooted by a certificate 
-	    authority that is trusted by the user agent's security policy.
-	    </li>
-          </ul>
-          <p>In addition to the rules applying to unprivileged hosted 
-          applications, the user agent SHALL NOT allow the installation of a 
-          privileged hosted application if:</p>
-          <ul>
-            <li>it is served over a protocol that makes no integrity or 
-            authenticity guarantees, such as HTTP.</li>
-            <li>it is served from a domain with certificates not rooted by a 
-            CA trusted by the user agent's security policy.</li>
-            <li>the user agent's security policy does not allow this domain 
-            to be the origin of privileged applications.</li>
-          </ul>
-          <p>The user agent MAY prevent uninstallation of a specific 
-          privileged application.</p>
-        </section>
+      <section>
+        <h2>Installation</h2>
+        <p>For the purpose of this specification, the user agent is
+        assumed to have a security policy dictating the set of known
+        authorities that are trusted to be the origin of a privileged
+        application.</p>
+        <p>In addition to the rules applying to unprivileged packaged
+        applications, the user agent SHALL NOT allow the installation of a
+        privileged packaged application if:</p>
+        <ul>
+          <li>it is not signed,</li>
+          <li>it has an invalid signature,</li>
+          <li>if it has an invalid certificate chain for the key used
+          to create the signature, or</li>
+          <li>if the certificate chain is not rooted by a certificate
+          authority that is trusted by the user agent's security policy.
+          </li>
+        </ul>
+        <p>In addition to the rules applying to unprivileged hosted
+        applications, the user agent SHALL NOT allow the installation of a
+        privileged hosted application if:</p>
+        <ul>
+          <li>it is served over a protocol that makes no integrity or
+          authenticity guarantees, such as HTTP.</li>
+          <li>it is served from a domain with certificates not rooted by a
+          CA trusted by the user agent's security policy.</li>
+          <li>the user agent's security policy does not allow this domain
+          to be the origin of privileged applications.</li>
+        </ul>
+        <p>The user agent MAY prevent uninstallation of a specific
+        privileged application.</p>
+      </section>
     </section>
 
     <section>
