@@ -1377,9 +1377,10 @@
         <p><code>default-src *; script-src 'self'; object-src 'none';
         style-src 'self'</code></p>
         <p>Additional CSP directives MAY be specified in the application
-        manifest but these SHALL NOT be more permissive than the above.
-        They MAY include 'content-src' rules, for example, but SHALL NOT
-        include 'script-src' rules.</p>
+        manifest or in HTTP headers for individual pages.  However, 
+        these SHALL NOT be more permissive than the above.  They MAY 
+        include 'content-src' rules, for example, but SHALL NOT include
+       'script-src' rules.</p>
       </section>
 
       <section>
