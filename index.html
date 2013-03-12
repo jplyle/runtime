@@ -1376,11 +1376,12 @@
         privileged applications [[!CSP]]:<br></p>
         <p><code>default-src *; script-src 'self'; object-src 'none';
         style-src 'self'</code></p>
-        <p>Additional CSP directives MAY be specified in the application
-        manifest or in HTTP headers for individual pages.  However, 
-        these SHALL NOT be more permissive than the above.  They MAY 
-        include 'content-src' rules, for example, but SHALL NOT include
-       'script-src' rules.</p>
+        <p>The user agent SHALL accept CSP directives specified in the 
+        application manifest or in HTTP headers for individual pages.  
+        However, the user agent SHALL NOT process headers that are more
+        permissive than those listed above.  The user agent SHALL support 
+        additional 'content-src' rules, for example, but SHALL NOT honor
+        new 'script-src' rules.</p>
       </section>
 
       <section>
