@@ -45,7 +45,43 @@
   </head>
 
   <body>
+  
     <section id='abstract'>
+    <p>This document specifies two classes of Web application: <em>hosted Web
+    applications</em> and <em>packaged applications</em>. These applications
+    differ from traditional Web applications in their life cycle, security
+    model, and access to APIs that are not normally available to Web
+    applications. Conceptually, the application manifest indicates that an
+    application can be "installed" on an end-user's device. What distinguishes
+    a traditional Web application from a hosted web application is an
+    application manifest: this is a JSON resource that contains application
+    specific metadata (e.g., the name of the application), and optionally
+    various security related permission requests to resources on the Web and/or
+    services and capabilities on the device.</p>
+
+    <figure>
+      <img src="images/apptypes.png" alt="">
+
+      <figcaption>
+        The figure shows the overlap between traditional web applications,
+        hosted web applications, and packaged applications. Web applications
+        make use of standard Web technologies but don't make use of an
+        application manifest. On the other hand, hosted applications make use
+        of an application manifest, while packaged applications have both an
+        application manifest and are packaged using [[!ZIP]].
+      </figcaption>
+    </figure>
+
+    <p>Installation of hosted or packaged applications onto a device can be
+    initiated through either linking to an application manifest or through the
+    use of the <code>ApplicationRegistry</code> API. This API gives a developer
+    a degree of control over the installation process.</p>
+
+    <p>This specification also specifies aspects related to the application's
+    lifecycle that are outside the control of the developer. These events
+    sometimes result in <em>system messages</em> being generated. Developers
+    can register event listeners to listen for these special events during the
+    life cycle of their application.</p>
       This document specifies the runtime and security model of Web Applications.
       It defines how an application is described through an application
       manifest, how it can be installed, updated and packaged. It also
@@ -58,6 +94,17 @@
 
     <section>
       <h2>Terminology</h2>
+      <p>A <dfn>language tag</dfn> is a string that matches the production of a
+      <code>Language-Tag</code> defined in the <a>[[!BCP47]]</a> specifications
+      (see the <a href=
+      "http://www.iana.org/assignments/language-subtag-registry">IANA Language
+      Subtag Registry</a> for an authoritative list of possible values, see also
+      the <a href=
+      "http://www.iso.org/iso/country_codes/iso_3166_code_lists/country_names_and_code_elements">
+      Maintenance Agency for ISO 3166 country codes</a>). Language tags that meet
+      the validity criteria of [[!RFC5646]] section 2.2.9 that can be verified
+      without reference to the IANA Language Subtag Registry are considered
+      structurally valid.</p>
       <p>
         The <dfn><a href="http://dev.w3.org/html5/spec/webappapis.html#event-handlers">
         EventHandler</a></dfn> interface represents a callback used for event
@@ -93,9 +140,8 @@
       installable web application. This JSON file consists of a top-level object
       and several properties. The JSON grammar is described in [[!RFC4627]].</p>
 
-      <pre class="example highlight">
-      {
-        "name": "MozillaBall",
+      <pre class="example highlight">{
+  "name": "The Example App",
         "description": "Exciting Open Web development action!",
         "launch_path": "/",
         "version": "1.0",
@@ -105,40 +151,36 @@
           "128": "/img/icon_128.png"
         },
         "developer": {
-          "name": "Mozilla",
-          "url": "https://mozilla.org/en-US"
+    "name": "Foo Corp.",
+    "url": "http://sysapps.org/example"
         },
         "appcache_path": "/cache.manifest",
-        "locales": [
+  "locales": {
           "es": {
             "description": "¡Acción abierta emocionante del desarrollo del Web!",
             "developer": {
-              "url": "https://mozilla.org/es-ES"
+        "url": "https://sysapps.org/example/es-ES"
             }
           }
-        ],
+  },
         "default_locale": "en",
         "screen_size": {
           "min_width": "600",
           "min_height": "300"
         },
-        "required_features": [
-          "touch", "geolocation", "webgl"
-        ],
+  "required_features": ["touch", "geolocation", "webgl"],
         "permissions": {
           "contacts": {
-            "description": "Required for autocompletion in the share screen",
+      "description": "Required for auto-completion in the share screen",
             "access": "read"
           }
         },
         "fullscreen": "true",
         "relNotes": {
-          "1.0": "Bugs fixed. New exciting effects. Ready for an official release!"
+    "1.0": "Bugs fixed. New exciting effects. Ready for an official release!",
           "0.5": "First alpha version with still some bugs but already fun!"
         }
-      }
-      }
-      </pre>
+}</pre>
 
       <section>
         <h2>Properties</h2>
@@ -206,7 +248,7 @@
             <dfn id="propdef-locales">locales</dfn>: The property's value MUST
             contain a map of locale specific overrides of strings contained in
             the <a>application manifest</a>. Each locale key is keyed on a
-            locale tag [[!RFC4646]], and contains a sparse representation of the
+            <a>language tag</a>, and contains a sparse representation of the
             manifest. Any field in the <a>locales</a> property SHOULD override
             the corresponding property in a localized user interface. The UA
             MAY ignore some values if localizing the property does not appear
@@ -728,8 +770,8 @@
                 the caller's origin. [[!ORIGIN]]<br>
                 When those applications are collected, the UA SHOULD send a
                 <code>success</code> event to the <a>DOMRequest</a> object and
-                populate its <code>request</code> attribute with an array
-                containing the applications.</dd>
+                populate its <code>request</code> attribute with an array of
+                <a>Application</a> objects representing the applications.</dd>
 
             <dt>DOMRequest getInstalled()</dt>
             <dd>The UA SHOULD return a <a>DOMRequest</a> object and
@@ -737,14 +779,14 @@
                 the caller's origin. [[!ORIGIN]]<br>
                 When those applications are collected, the UA SHOULD send a
                 <code>success</code> event to the <a>DOMRequest</a> object and
-                populate its <code>request</code> attribute with an array
-                containing the applications.</dd>
+                populate its <code>request</code> attribute with an array of
+                <a>Application</a> objects representing the applications.</dd>
 
             <dt>DOMRequest checkInstalled(DOMString manifestURL)</dt>
             <dd>The UA SHOULD return a <a>DOMRequest</a> object and
             asynchronously check if there is an installed application in the
             system with a manifest URL matching <i>manifestURL</i>.<br>
-            After the asynchronous operation is done,, the IA SHOULD send a
+            After the asynchronous operation is done, the IA SHOULD send a
             <code>success</code> event to the <a>DOMRequest</a> object and
             populate its <code>result</code> attribute with the boolean value
             true if there is an installed application fulfilling the condition,
@@ -786,30 +828,34 @@
              restricted to privileged callers.</p>
 
           <dl title='interface ApplicationManagement' class='idl'>
-            <dt>DOMRequest getAll()</dt>
-            <dd>The UA SHOULD return a <a>DOMRequest</a> object and
-                asynchronously get all applications currently in the application
-                registry.<br>
-                When those applications are collected, the UA SHOULD send a
-                <code>success</code> event to the <a>DOMRequest</a> object and
-                populate its <code>request</code> attribute with an array
-                containing the applications.</dd>
+            <dt class='no-docs'>
+              DOMRequest getAll()
+            </dt>
+            <dd></dd>
 
-            <dt>[TreatNonCallableAsNull] attribute EventHandler oninstall</dt>
-            <dd>This value may be set to a function that will be invoked when an
-            application is installed. The only argument to this function will be
-            the <code>AppObject</code> of the application that was installed.</dd>
+            <dt class='no-docs'>
+              DOMRequest applyUpdate(Application application)
+            </dt>
+            <dd></dd>
 
-            <dt>[TreatNonCallableAsNull] attribute EventHandler onuninstall</dt>
-            <dd>This value may be set to a function that will be invoked when an
-            application is uninstalled. The only argument to this function be the
-            <code>AppObject</code> of the application that was uninstalled.</dd>
+            <dt class='no-docs'>attribute EventHandler oninstall</dt>
+            <dd></dd>
 
-            <!-- Update-related API -->
+            <dt class='no-docs'>attribute EventHandler onuninstall</dt>
+            <dd></dd>
+          </dl>
 
-            <dt>DOMRequest applyUpdate(Application application)</dt>
-            <dd>The method MUST return a <a>DOMRequset</a> object and perform
-            the following steps asynchronously:
+          <p>The <code>getAll</code> method SHOULD return a <a>DOMRequest</a>
+          object and asynchronously get all applications currently in the
+          application registry.<br>
+          When those applications are collected, the UA SHOULD send a
+          <code>success</code> event to the <a>DOMRequest</a> object and
+          populate its <code>request</code> attribute with an array of
+          <a>Application</a> objects representing the applications.</p>
+          the applications.</p>
+
+          <p>The <code>applyUpdate</code> method MUST return a <a>DOMRequest</a>
+          object and perform the following steps asynchronously:
             <ol>
               <li>If the application does not have an updated or the updated
               is not fully downloaded, the UA MUST send an <a>error message</a>
@@ -825,23 +871,25 @@
               request with an <a>Application</a> object representing the updated
               application as a value.</li>
             </ol>
-            </dd>
-
-          </dl>
+          </p>
         </section>
 
         <section>
           <h2>Events</h2>
           <p>
-            An <a>install</a> event MUST be fired on all
-            <a>ApplicationManagement</a> instances as soon as an application is
-            installed.
+            An <a>install</a> event using the <a>ApplicationEvent</a> interface
+            MUST be fired on all <a>ApplicationManagement</a> instances as soon
+            as an application is installed with the <code>application</code>
+            attribute set to the <a>Application</a> object representing the
+            installed application.
           </p>
 
           <p>
-            The <a>uninstall</a> event MUST be fired on all
-            <a>ApplicationManagement</a> instances as soon as an application is
-            uninstalled.
+            The <a>uninstall</a> event using the <a>ApplicationEvent</a>
+            interface MUST be fired on all <a>ApplicationManagement</a>
+            instances as soon as an application is uninstalled with the
+            <code>application</code> attribute set to the <a>Application</a>
+            object representing the uninstalled application.
           </p>
 
           <p>
@@ -879,7 +927,7 @@
         level like an application being installed or uninstalled.</p>
 
         <section>
-          <dl title='[Constructor(DOMString type, Application eventInitDict)]
+          <dl title='[Constructor(DOMString type, ApplicationEventInit eventInitDict)]
                     interface ApplicationEvent : Event' class='idl'>
             <dt>readonly attribute Application application</dt>
             <dd></dd>
@@ -916,7 +964,7 @@
       application SHOULD be available in the container.</p>
 
       <p>A <dfn>hosted application</dfn> is an application that is not a
-      <a>packaged application</a></p>
+      <a>packaged application</a>.</p>
 
       <section class="informative">
 
@@ -1107,13 +1155,13 @@
       events in the sense that they are always originated by the system and that
       if the targeted application is not currently running, it will be started.
       <br>
-      In addition, messages that are not handled will stay in a queue.</p>
+      In addition, unhandled messages will stay in a queue.</p>
 
       <section class="informative">
         <h2>Use cases</h2>
 
         <p>Some applications might be interested in getting some events even if
-        they are not running and want to be woken up if such events is sent
+        they are not running and want to be woken up if such event is sent
         while they are asleep.<br>
         In addition, when the application is being woken, it needs to know as
         soon as possible why it has been disturbed to be able to show the
@@ -1166,7 +1214,7 @@
 
         <p>The <dfn>type of system message</dfn> identifies a category of system
         messages.<br>
-        Application are be able to register and handle system messages based
+        Application are able to register and handle system messages based
         on their types. There is no exhaustive list of system messages type. Any
         specification can create a new type of system message.</p>
 
@@ -1235,8 +1283,8 @@
             <th>Access Type</th>
           </tr>
           <tr>
-            <td><code>desktop-notification</code></td>
-            <td>Allow the application to use the Desktop Notification API.</td>
+            <td><code>notification</code></td>
+            <td>Allow the application to use the Web Notifications API.</td>
             <td>N/A</td>
           </tr>
           <tr>
@@ -1361,7 +1409,7 @@
             as the first argument is a Function object rather than a string;<il>
             <li>onXXX attributes can't be used in the markup of pages. However,
             using the associated <a>EventHandler</a> is doable. For example:
-            myElement.onXXX = someFunction;<li>
+            myElement.onXXX = someFunction;</li>
             <li>&lt;object&gt;, &lt;embed&gt; and &lt;applet&gt; are fully
             disabled. In other words, plugins won't work at all. Including
             flash.</li>
@@ -1595,13 +1643,14 @@
     <section class="appendix">
       <h2>Acknowledgments</h2>
 
-      <p>Thanks to the Samsung team, especially 金明(Ming Jin), Janusz Majnert
-      and 송정기(Jungkee Song) for their work on the <i>System Application
-      Runtime: Execution and Security Model</i> specification.</p>
+      <p>Special thanks to the Samsung team, especially 金明(Ming Jin), Janusz
+      Majnert and 송정기(Jungkee Song) for their work on the <i>System
+      Application Runtime: Execution and Security Model</i> specification.</p>
 
       <p>Special thanks to Anant Narayanan for his <i>Web Application Manifest
       Format and Management APIs</i> that this specification reuse shamelessly and
       to Jonas Sicking for being awesome, as always.</p>
+
     </section>
   </body>
 </html>
